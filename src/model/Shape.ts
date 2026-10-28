@@ -20,7 +20,7 @@ export abstract class Shape {
     }
     if (attribute === 'stroke-width') {
       if (!value.trim()) throw new Error('number must be finite');
-      Numbers.nonNegative(Number(value));
+      Numbers.nonNegative(Numbers.parse(value));
     }
     this.styles.set(attribute, value);
   }
