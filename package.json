@@ -6,11 +6,9 @@
   "type": "module",
   "scripts": {
     "build": "tsc -p tsconfig.json",
-    "cli": "npm run build --silent && node dist/cli/Main.js",
-    "test": "npm run build && node --test tests/*.test.mjs",
+    "test": "npm run build && node --test",
     "check": "npm test"
   },
-  "dependencies": { "@xmldom/xmldom": "0.8.11" },
   "devDependencies": { "@types/node": "22.10.2", "typescript": "5.7.2" },
   "engines": { "node": ">=20" }
 }
