@@ -9,7 +9,14 @@ export class Text extends GeometricShape {
     this.content = content;
   }
 
-  get text(): string { return this.content; }
+  override get text(): string { return this.content; }
+  override readText(content: string): void { this.content = content; }
+
+  override details(): readonly string[] { return [...super.details(), `text=${JSON.stringify(this.content)}`]; }
+
+  override describe(): string {
+    return `${this.label} (${this.coordinate('x')},${this.coordinate('y')}) ${JSON.stringify(this.content)}${this.styleSummary()}`;
+  }
 
   override set(attribute: string, value: string): void {
     if (attribute === 'text') this.content = value;

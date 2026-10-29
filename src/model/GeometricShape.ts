@@ -27,6 +27,10 @@ export abstract class GeometricShape extends Shape {
 
   protected coordinate(key: string): number { return this.geometry[key]!; }
 
+  override describe(): string {
+    return `${this.label} ${Object.entries(this.geometry).map(([key, value]) => `${key}=${value}`).join(' ')}${this.styleSummary()}`;
+  }
+
   override move(dx: number, dy: number): void {
     Numbers.finite(dx); Numbers.finite(dy);
     const next = { ...this.geometry };

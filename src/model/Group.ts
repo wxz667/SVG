@@ -17,7 +17,7 @@ export class Group extends Shape {
   }
 
   static parentOf(shape: Shape): Group | undefined { return Group.owners.get(shape); }
-  children(): readonly Shape[] { return Object.freeze([...this.nodes]); }
+  override children(): readonly Shape[] { return Object.freeze([...this.nodes]); }
 
   override descendants(): readonly Shape[] {
     return [...(this.documentRoot ? [] : [this]), ...this.nodes.flatMap(node => node.descendants())];

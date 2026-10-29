@@ -13,4 +13,8 @@ export class Rect extends GeometricShape {
     this.copyStylesTo(copy);
     return copy;
   }
+
+  override describe(): string {
+    return `${this.label} x=${this.coordinate('x')} y=${this.coordinate('y')} w=${this.coordinate('width')} h=${this.coordinate('height')}${this.styleSummary()}`;
+  }
 }

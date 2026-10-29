@@ -13,6 +13,23 @@ export abstract class Shape {
 
   get id(): string { return this.identity; }
   get label(): string { return `${this.type}#${this.id}`; }
+  get text(): string { return ''; }
+  children(): readonly Shape[] { return []; }
+
+  readText(content: string): void {
+    if (content.trim()) throw new Error(`unexpected text in <${this.type}>`);
+  }
+
+  details(): readonly string[] {
+    return Object.entries(this.attributes()).filter(([key]) => key !== 'id')
+      .map(([key, value]) => `${key}=${value}`);
+  }
+
+  describe(): string { return `${this.label}${this.styleSummary()}`; }
+
+  protected styleSummary(): string {
+    return [...this.styles].map(([key, value]) => ` ${key}=${value}`).join('');
+  }
 
   set(attribute: string, value: string): void {
     if (!['fill', 'stroke', 'stroke-width'].includes(attribute)) {

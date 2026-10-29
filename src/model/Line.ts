@@ -13,4 +13,8 @@ export class Line extends GeometricShape {
     this.copyStylesTo(copy);
     return copy;
   }
+
+  override describe(): string {
+    return `${this.label} (${this.coordinate('x1')},${this.coordinate('y1')}) -> (${this.coordinate('x2')},${this.coordinate('y2')})${this.styleSummary()}`;
+  }
 }

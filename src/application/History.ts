@@ -5,12 +5,15 @@ export class History {
   private readonly past: EditCommand[] = [];
   private readonly future: EditCommand[] = [];
   private blocked = true;
+  private message = '';
+  get feedback(): string { return this.message; }
 
   execute(command: EditCommand, document: Canvas): Canvas {
     const next = command.execute(document);
     this.past.push(command);
     this.future.length = 0;
     this.blocked = false;
+    this.message = command.summary;
     return next;
   }
 
@@ -20,6 +23,7 @@ export class History {
     if (!command) throw new Error('nothing to undo');
     const previous = command.undo();
     this.past.pop(); this.future.push(command);
+    this.message = `undone: ${command.summary}`;
     return previous;
   }
 
@@ -29,6 +33,7 @@ export class History {
     if (!command) throw new Error('nothing to redo');
     const next = command.redo();
     this.future.pop(); this.past.push(command);
+    this.message = `redone: ${command.summary}`;
     return next;
   }
 
