@@ -62,7 +62,7 @@ test('strict XML rejects malformed documents, entities and unsupported semantics
     '<svg><g></svg>', '<svg/><svg/>', '<svg><rect id="a" id="b"/></svg>',
     '<!DOCTYPE svg [<!ENTITY test "x">]><svg/>', '<svg><text>&unknown;</text></svg>',
     '<svg xmlns="urn:other"/>', '<svg><rect><circle/></rect></svg>', '<svg><path/></svg>',
-    '<svg><g transform="translate(1,2)"/></svg>', '<svg width="100%"/>',
+    '<svg><g transform="rotate(30)"/></svg>', '<svg width="100%"/>',
     '<svg width="10" height="10" viewBox="0 0 20 20"/>', '<svg><text>\u0000</text></svg>',
   ]) assert.throws(() => codec.decode(source), source);
 });

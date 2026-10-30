@@ -19,8 +19,8 @@ export class SvgCodec {
         throw new Error(`unsupported SVG root attribute: ${key}`);
       }
     }
-    const width = Numbers.parse(attributes.width ?? '800');
-    const height = Numbers.parse(attributes.height ?? '600');
+    const width = Numbers.length(attributes.width ?? '800');
+    const height = Numbers.length(attributes.height ?? '600');
     const document = new Canvas(width, height);
     if (attributes.viewBox !== undefined) {
       const values = attributes.viewBox.trim().split(/[\s,]+/).map(value => Numbers.parse(value));

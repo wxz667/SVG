@@ -1,4 +1,3 @@
-import { Numbers } from './Numbers.js';
 import { Shape } from './Shape.js';
 
 export class Group extends Shape {
@@ -55,24 +54,25 @@ export class Group extends Shape {
     Group.owners.delete(shape);
   }
 
-  override move(dx: number, dy: number): void {
-    Numbers.finite(dx);
-    Numbers.finite(dy);
-    // Preflight on independent copies, so overflow cannot leave a half-moved group.
-    for (const node of this.nodes) node.clone().move(dx, dy);
-    for (const node of this.nodes) node.move(dx, dy);
+  protected override prepareMove(dx: number, dy: number): () => void {
+    const changes = this.nodes.map(node => Shape.movePlan(node, dx, dy));
+    return () => { for (const apply of changes) apply(); };
   }
 
-  override scale(factor: number): void {
-    Numbers.scaleFactor(factor);
-    for (const node of this.nodes) node.clone().scale(factor);
-    for (const node of this.nodes) node.scale(factor);
+  protected override prepareScale(factor: number): () => void {
+    const changes = this.nodes.map(node => Shape.scalePlan(node, factor));
+    return () => { for (const apply of changes) apply(); };
   }
 
   override clone(): Group {
     const copy = this.documentRoot ? Group.createDocumentRoot() : new Group(this.id);
     this.copyStylesTo(copy);
-    for (const node of this.nodes) copy.add(node.clone());
+    // This is an already validated tree, so avoid repeating global-id scans at every depth.
+    for (const node of this.nodes) {
+      const child = node.clone();
+      copy.nodes.push(child);
+      Group.owners.set(child, copy);
+    }
     return copy;
   }
 }

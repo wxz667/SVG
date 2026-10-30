@@ -31,18 +31,23 @@ export abstract class GeometricShape extends Shape {
     return `${this.label} ${Object.entries(this.geometry).map(([key, value]) => `${key}=${value}`).join(' ')}${this.styleSummary()}`;
   }
 
-  override move(dx: number, dy: number): void {
-    Numbers.finite(dx); Numbers.finite(dy);
+  protected override prepareMove(dx: number, dy: number): () => void {
     const next = { ...this.geometry };
     for (const key of this.horizontal) next[key] = next[key]! + dx;
     for (const key of this.vertical) next[key] = next[key]! + dy;
-    this.geometry = this.validate(next);
+    const validated = this.validate(next);
+    return () => { this.geometry = validated; };
   }
 
-  override scale(factor: number): void {
-    Numbers.scaleFactor(factor);
+  protected override prepareScale(factor: number): () => void {
     const next = Object.fromEntries(Object.entries(this.geometry).map(([key, value]) => [key, value * factor]));
-    this.geometry = this.validate(next);
+    const validated = this.validate(next);
+    return () => { this.geometry = validated; };
+  }
+
+  override readAttribute(attribute: string, value: string): void {
+    if (Object.hasOwn(this.geometry, attribute)) this.set(attribute, String(Numbers.length(value)));
+    else super.readAttribute(attribute, value);
   }
 
   override set(attribute: string, value: string): void {

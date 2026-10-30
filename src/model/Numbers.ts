@@ -1,5 +1,9 @@
 /** Shared validation, kept independent of command parsing and I/O. */
 export class Numbers {
+  static length(value: string): number {
+    return Numbers.parse(value.trim().replace(/px$/, ''));
+  }
+
   static parse(value: string): number {
     if (!/^[+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?$/.test(value)) {
       throw new Error(`invalid number: ${value}`);

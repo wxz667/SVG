@@ -79,11 +79,14 @@ export class Canvas {
   }
 
   ungroup(id: string): void {
-    const group = this.container(id);
+    const group = this.find(id);
+    if (!(group instanceof Group)) throw new Error(`not a container: ${id}`);
     const parent = Group.parentOf(group)!;
     if (parent === this.root) throw new Error(`cannot ungroup top-level container: ${id}`);
     const children = group.children();
     const index = parent.children().indexOf(group);
+    for (const child of children) child.clone().inheritFrom(group);
+    for (const child of children) child.inheritFrom(group);
     // Move before removing the container, preserving validation against the whole document.
     children.forEach((shape, offset) => parent.insert(shape, index + offset));
     parent.remove(group);

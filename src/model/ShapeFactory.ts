@@ -48,7 +48,7 @@ export class ShapeFactory {
     if (!constructor) throw new Error(`unknown shape type: ${type} (is the plugin loaded?)`);
     const shape = constructor(id);
     for (const [key, value] of Object.entries(attributes)) {
-      if (key !== 'id') shape.set(key, value);
+      if (key !== 'id') shape.readAttribute(key, value);
     }
     shape.readText(text);
     return shape;
