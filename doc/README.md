@@ -103,13 +103,38 @@ infrastructure --> model
 
 当前 SVG 读写范围：六类图形、规定的几何属性及 fill/stroke/stroke-width；文字作为元素内容。支持 XML 声明、注释、CDATA 和命名空间，支持无单位及 px 长度、嵌套平移和正数等比缩放，保留 font-size/text-anchor。viewBox 需与画布尺寸一致。旋转、斜切、非等比缩放、路径、其他扩展属性及百分比尺寸明确报错，不静默删除。读入嵌套深度上限为 128。
 
+### 最终验收（2026-10-31）
+
+- 按命令表补充集中验收：六类图形均可直接创建到容器中，创建可单步撤销和重做；逐类型验证几何属性、公共样式和文字内容的 set 白名单。
+- 对照错误约定核对重复 ID、缺失元素、无效容器、未知类型、祖孙同时分组、根级解组、非正缩放及未知属性的完整错误文本；每次失败后确认文档不变，失败命令不进入历史。
+- 在独立干净目录仅复制源文件、测试、示例和工程配置，按 package-lock.json 执行 `npm ci`，重新编译并通过全部 71 项测试，再运行流程图脚本生成 SVG。验证不依赖原工程中的 node_modules 或 dist。
+- 使用真实交互终端检查 `svg>` 提示符、中文文本、结构树、撤销重做和 EOF 退出。脚本回放与完整典型会话由自动化用例覆盖。
+
 ## 一致性自查
 
-在实现完成后，对照实际目录和代码依赖统一检查并记录结果。
+1. **模块划分**：实际源码分为 `src/model`、`src/application`、`src/commands`、`src/infrastructure`、`src/cli`，与方案一致。测试位于 `tests`，可回放命令和 SVG 位于 `examples`，文档位于 `doc`。全部源码类按同名文件组织。几何基类与变换值对象均放在 model，未引入职责不明的公共工具模块。
+2. **依赖方向**：架构测试扫描五个源码模块的 import，未发现违反规则的依赖。抽样核对 `Rect → GeometricShape → Shape`、`MoveCommand → EditCommand/Canvas`、`Editor → History/DocumentStore/Canvas`、`FileDocumentStore → DocumentStore/SvgCodec`；`Main` 负责存储实现的注入，其他 CLI 类不依赖 infrastructure。CLI 复用 model 中 Numbers 的规则调整已在过程记录和组件图中同步说明。
+
+按图形类型名选择类的逻辑集中在 ShapeFactory，按命令名选择行为的逻辑集中在 CommandRegistry；图形操作、树形显示及序列化通过多态完成，没有 switch(tag) 分派。两处内置注册表是已记录的后续插件化重构项；当前未发现需要处理的依赖违规。
 
 ## 质量保证手段
 
-当前严格编译和自动化测试结果为 **68 项通过，0 项失败**，覆盖模型、命令、CLI、SVG 读写、回归用例与架构检查。通过 `npm test` 可统一运行；本轮使用 `npm run build` 与 `node --test --test-reporter=spec` 分别检查构建及测试结果。
+最终在干净目录执行 `npm ci`、`npm test`，结果为 **TypeScript 严格编译通过，71 项测试通过，0 项失败**。测试覆盖模型、命令、CLI、SVG 读写、回归用例与架构检查。
+
+| 验收范围 | 验证依据 | 结果 |
+| --- | --- | --- |
+| 六种图形、浮点坐标、可选样式省略、创建时归属 | shapes、acceptance 测试 | 通过 |
+| 创建、删除、移动、缩放、set、容器统一操作 | model、editor、acceptance 测试 | 通过 |
+| 分组、解组、addto、同级 front/back 和顺序恢复 | editor、cli、regressions 测试 | 通过 |
+| 一条编辑一个撤销单元、redo 分支及文档操作屏障 | editor、svg、acceptance 测试 | 通过 |
+| ID 唯一且区分大小写、缺失 ID 补全及警告 | model、editor、svg 测试 | 通过 |
+| 错误信息、失败原子性、失败后继续交互 | acceptance、cli、svg 测试 | 通过 |
+| tree/show/help、引号、注释、空文本、中文与脚本入口 | cli、acceptance 测试及交互终端检查 | 通过 |
+| SVG 读写、默认读入路径、实体转义、文件失败保护 | svg、regressions 测试 | 通过 |
+| 背景变换示例、完整典型会话、两节点流程图 | regressions、cli 测试及脚本回放 | 通过 |
+| 面向对象、一类一文件、依赖方向和 I/O 隔离 | architecture 测试及源码抽查 | 通过 |
+
+box 在任务中明确属于后续插件化阶段；当前 create box 按未知类型报错，复合图形插件特有的解组错误不适用于内置六种图形。交付范围是本任务定义的 SVG 子集，未支持的扩展语法按前述范围明确报错。
 
 测试覆盖浮点坐标、默认样式省略、增量移动、位置与尺寸同步缩放、属性白名单、非法数值、嵌套分组、深拷贝隔离、大小写敏感 ID、重新归属、循环检测、只读集合及溢出时的失败原子性。
 
